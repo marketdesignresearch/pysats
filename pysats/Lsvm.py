@@ -35,7 +35,7 @@ class _Lsvm(JavaClass, metaclass=MetaJavaClass):
             rng = JavaUtilRNGSupplier()
 
         self.setNumberOfNationalBidders(number_of_national_bidders)
-        self.setNumberOfNationalBidders(number_of_regional_bidders)
+        self.setNumberOfRegionalBidders(number_of_regional_bidders)
         
         world = self.createWorld(rng)
         self._bidder_list = self.createPopulation(world, rng)
@@ -71,10 +71,14 @@ class _Lsvm(JavaClass, metaclass=MetaJavaClass):
                 bundle.add(self.goods[i])
         return bidder.calculateValue(bundle).doubleValue()
     
-    def get_random_bids(self, bidder_id, number_of_bids, mean_bundle_size=3, standard_deviation_bundle_size=2):
+    def get_random_bids(self, bidder_id, number_of_bids, seed=None, mean_bundle_size=3, standard_deviation_bundle_size=2):
         bidder = self.population[bidder_id]
+        if seed:
+            rng = JavaUtilRNGSupplier(seed)
+        else:
+            rng = JavaUtilRNGSupplier()
         valueFunction = cast('org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR',
-                                bidder.getValueFunction(SizeBasedUniqueRandomXOR))
+                                bidder.getValueFunction(SizeBasedUniqueRandomXOR, rng))
         valueFunction.setDistribution(
             mean_bundle_size, standard_deviation_bundle_size)
         valueFunction.setIterations(number_of_bids)

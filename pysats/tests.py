@@ -23,5 +23,14 @@ class TestPySats(unittest.TestCase):
         allocation, total_value = lsvm.get_efficient_allocation()
         print(allocation)
 
+    def test_lsvm_bid_seeds(self):
+        lsvm = self.pysats.create_lsvm(seed=2)
+        bidder_ids = lsvm.get_bidder_ids()
+        for bidder_id in bidder_ids:
+            # Generate some bids
+            bids = lsvm.get_random_bids(bidder_id, 10, seed=123)
+            new_bids = lsvm.get_random_bids(bidder_id, 10, seed=123)
+            self.assertEqual(bids, new_bids)
+
 if __name__ == '__main__':
     unittest.main()
