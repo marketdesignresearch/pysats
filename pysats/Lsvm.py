@@ -71,7 +71,7 @@ class _Lsvm(JavaClass, metaclass=MetaJavaClass):
                 bundle.add(self.goods[i])
         return bidder.calculateValue(bundle).doubleValue()
     
-    def get_random_bids(self, bidder_id, number_of_bids, seed=None, mean_bundle_size=3, standard_deviation_bundle_size=2):
+    def get_random_bids(self, bidder_id, number_of_bids, seed=None, mean_bundle_size=9, standard_deviation_bundle_size=4.5):
         bidder = self.population[bidder_id]
         if seed:
             rng = JavaUtilRNGSupplier(seed)
