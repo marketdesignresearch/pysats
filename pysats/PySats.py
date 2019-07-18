@@ -23,3 +23,7 @@ class PySats:
     def create_lsvm(self, seed=None, number_of_national_bidders=1, number_of_regional_bidders=5):
         from Lsvm import _Lsvm
         return _Lsvm(seed, number_of_national_bidders, number_of_regional_bidders)
+
+    def create_gsvm(self, seed=None, number_of_national_bidders=1, number_of_regional_bidders=5):
+        from Gsvm import _Gsvm
+        return _Gsvm(seed, number_of_national_bidders, number_of_regional_bidders)

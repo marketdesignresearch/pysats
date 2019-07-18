@@ -3,11 +3,11 @@
     "python.testing.unittestArgs": [
         "-v",
         "-s",
-        ".",
+        "./pysats",
         "-p",
         "*test*.py"
     ],
-    "python.testing.pyTestEnabled": false,
+    "python.testing.pytestEnabled": false,
     "python.testing.nosetestsEnabled": false,
     "python.testing.unittestEnabled": true
 }
