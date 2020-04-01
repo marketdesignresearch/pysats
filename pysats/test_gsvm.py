@@ -21,14 +21,15 @@ class GsvmTest(unittest.TestCase):
             bids = gsvm.get_random_bids(bidder_id, 10)
             print(bids)
 
-        allocation, total_value = gsvm.get_efficient_allocation()
+        allocation, total_value = gsvm.get_efficient_allocation(
+            allowAssigningLicensesWithZeroBasevalue=False)
         print(allocation)
         self.assertEqual(allocation[0]['value'], 0)
-        self.assertEqual(allocation[1]['value'], 232.28452745338444)
+        self.assertEqual(allocation[1]['value'], 211.1677522303495)
         self.assertEqual(allocation[2]['value'], 0)
         self.assertEqual(allocation[3]['value'], 199.12104698410005)
         self.assertEqual(allocation[4]['value'], 0)
-        self.assertEqual(allocation[5]['value'], 124.54470215729725)
+        self.assertEqual(allocation[5]['value'], 145.4180879903979)
         self.assertEqual(allocation[6]['value'], 0)
 
     def test_gsvm_bid_seeds(self):

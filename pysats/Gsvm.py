@@ -26,6 +26,7 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
     population = {}
     goods = {}
     efficient_allocation = None
+    last_efficient_allocation_flag = None
 
     def __init__(self, seed, number_of_national_bidders, number_of_regional_bidders):
         super().__init__()
@@ -37,8 +38,8 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
         self.setNumberOfNationalBidders(number_of_national_bidders)
         self.setNumberOfRegionalBidders(number_of_regional_bidders)
         
-        world = self.createWorld(rng)
-        self._bidder_list = self.createPopulation(world, rng)
+        self.world = self.createWorld(rng)
+        self._bidder_list = self.createPopulation(self.world, rng)
 
         # Store bidders
         bidderator = self._bidder_list.iterator()
@@ -47,7 +48,7 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
             self.population[bidder.getId()] = bidder
         
         # Store goods
-        goods_iterator = self._bidder_list.iterator().next().getWorld().getLicenses().iterator()
+        goods_iterator = self.world.getLicenses().iterator()
         count = 0
         while goods_iterator.hasNext():
             good = goods_iterator.next()
@@ -96,15 +97,17 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
             bids.append(bid)
         return bids
 
-    def get_efficient_allocation(self):
-        if self.efficient_allocation:
+    def get_efficient_allocation(self, allowAssigningLicensesWithZeroBasevalue=True):
+        if self.efficient_allocation and self.last_efficient_allocation_flag == allowAssigningLicensesWithZeroBasevalue:
             return self.efficient_allocation
         
-        mip = GSVMStandardMIP(self._bidder_list)
+        mip = GSVMStandardMIP(self.world, self._bidder_list,
+                              allowAssigningLicensesWithZeroBasevalue)
         mip.setDisplayOutput(True)
         
         item_allocation = cast('org.spectrumauctions.sats.opt.domain.ItemAllocation', mip.calculateAllocation())
         
+        self.last_efficient_allocation_flag = allowAssigningLicensesWithZeroBasevalue
         self.efficient_allocation = {}
 
         for bidder_id, bidder in self.population.items():
