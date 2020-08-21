@@ -1,5 +1,4 @@
 {
-    "python.pythonPath": "C:\\tools\\miniconda3\\envs\\sats-python-test\\python.exe",
     "python.testing.unittestArgs": [
         "-v",
         "-s",
