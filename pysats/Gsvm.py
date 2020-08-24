@@ -5,7 +5,9 @@ SizeBasedUniqueRandomXOR = autoclass(
 JavaUtilRNGSupplier = autoclass(
     'org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier')
 Bundle = autoclass(
-    'org.spectrumauctions.sats.core.model.Bundle')
+    'org.marketdesignresearch.mechlib.core.Bundle')
+BundleEntry = autoclass(
+    'org.marketdesignresearch.mechlib.core.BundleEntry')
 GSVMStandardMIP = autoclass(
     'org.spectrumauctions.sats.opt.model.gsvm.GSVMStandardMIP')
 
@@ -13,7 +15,7 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
     __javaclass__ = 'org/spectrumauctions/sats/core/model/gsvm/GlobalSynergyValueModel'
 
     # TODO: I don't find a way to have the more direct accessors of the DefaultModel class. So for now, I'm mirroring the accessors 
-    #createNewPopulation = JavaMultipleMethod([
+    # createNewPopulation = JavaMultipleMethod([
     #    '()Ljava/util/List;',
     #    '(J)Ljava/util/List;'])
     setNumberOfNationalBidders = JavaMethod('(I)V')
@@ -22,13 +24,13 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
         '(Lorg/spectrumauctions/sats/core/util/random/RNGSupplier;)Lorg/spectrumauctions/sats/core/model/gsvm/GSVMWorld;')
     createPopulation = JavaMethod(
         '(Lorg/spectrumauctions/sats/core/model/World;Lorg/spectrumauctions/sats/core/util/random/RNGSupplier;)Ljava/util/List;')
+    setLegacyGSVM = JavaMethod('(Z)V')
 
     population = {}
     goods = {}
     efficient_allocation = None
-    last_efficient_allocation_flag = None
 
-    def __init__(self, seed, number_of_national_bidders, number_of_regional_bidders):
+    def __init__(self, seed, number_of_national_bidders, number_of_regional_bidders, isLegacyGSVM=False):
         super().__init__()
         if seed:
             rng = JavaUtilRNGSupplier(seed)
@@ -37,7 +39,7 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
 
         self.setNumberOfNationalBidders(number_of_national_bidders)
         self.setNumberOfRegionalBidders(number_of_regional_bidders)
-        
+        self.setLegacyGSVM(isLegacyGSVM)
         self.world = self.createWorld(rng)
         self._bidder_list = self.createPopulation(self.world, rng)
 
@@ -45,16 +47,16 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
         bidderator = self._bidder_list.iterator()
         while bidderator.hasNext():
             bidder = bidderator.next()
-            self.population[bidder.getId()] = bidder
+            self.population[bidder.getId().toString()] = bidder
         
         # Store goods
         goods_iterator = self.world.getLicenses().iterator()
         count = 0
         while goods_iterator.hasNext():
             good = goods_iterator.next()
-            assert good.getId() == count
+            assert good.getLongId() == count
             count += 1
-            self.goods[good.getId()] = good
+            self.goods[good.getLongId()] = good
         
     
     def get_bidder_ids(self):
@@ -66,10 +68,11 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
     def calculate_value(self, bidder_id, goods_vector):
         assert len(goods_vector) == len(self.goods.keys())
         bidder = self.population[bidder_id]
-        bundle = Bundle()
+        bundleEntries = autoclass('java.util.HashSet')()
         for i in range(len(goods_vector)):
             if goods_vector[i] == 1:
-                bundle.add(self.goods[i])
+                bundleEntries.add(BundleEntry(self.goods[i], 1))
+        bundle = Bundle(bundleEntries)
         return bidder.calculateValue(bundle).doubleValue()
     
     def get_random_bids(self, bidder_id, number_of_bids, seed=None, mean_bundle_size=9, standard_deviation_bundle_size=4.5):
@@ -86,38 +89,36 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
         xorBidIterator = valueFunction.iterator()
         bids = []
         while (xorBidIterator.hasNext()):
-            xorBid = xorBidIterator.next()
+            bundleValue = xorBidIterator.next()
             bid = []
             for good_id, good in self.goods.items():
-                if (xorBid.getLicenses().contains(good)):
+                if (bundleValue.getBundle().contains(good)):
                     bid.append(1)
                 else:
                     bid.append(0)
-            bid.append(xorBid.value)
+            bid.append(bundleValue.getAmount().doubleValue())
             bids.append(bid)
         return bids
 
-    def get_efficient_allocation(self, allowAssigningLicensesWithZeroBasevalue=True):
-        if self.efficient_allocation and self.last_efficient_allocation_flag == allowAssigningLicensesWithZeroBasevalue:
+    def get_efficient_allocation(self, display_output=True):
+        if self.efficient_allocation:
             return self.efficient_allocation
         
-        mip = GSVMStandardMIP(self.world, self._bidder_list,
-                              allowAssigningLicensesWithZeroBasevalue)
-        mip.setDisplayOutput(True)
+        mip = GSVMStandardMIP(self.world, self._bidder_list)
+        mip.setDisplayOutput(display_output)
         
-        item_allocation = cast('org.spectrumauctions.sats.opt.domain.ItemAllocation', mip.calculateAllocation())
+        allocation = mip.calculateAllocation()
         
-        self.last_efficient_allocation_flag = allowAssigningLicensesWithZeroBasevalue
         self.efficient_allocation = {}
 
         for bidder_id, bidder in self.population.items():
             self.efficient_allocation[bidder_id] = {}
             self.efficient_allocation[bidder_id]['good_ids'] = []
-            bidder_allocation = item_allocation.getAllocation(bidder)
-            good_iterator = bidder_allocation.iterator()
+            bidder_allocation = allocation.allocationOf(bidder)
+            good_iterator = bidder_allocation.getBundle().getSingleQuantityGoods().iterator()
             while good_iterator.hasNext():
-                self.efficient_allocation[bidder_id]['good_ids'].append(good_iterator.next().getId())
+                self.efficient_allocation[bidder_id]['good_ids'].append(good_iterator.next().getLongId())
 
-            self.efficient_allocation[bidder_id]['value'] = item_allocation.getTradeValue(bidder).doubleValue()
+            self.efficient_allocation[bidder_id]['value'] = bidder_allocation.getValue().doubleValue()
         
-        return self.efficient_allocation, item_allocation.totalValue.doubleValue()
+        return self.efficient_allocation, allocation.getTotalAllocationValue().doubleValue()

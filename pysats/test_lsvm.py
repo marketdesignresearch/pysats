@@ -9,7 +9,7 @@ class LsvmTest(unittest.TestCase):
 
     def test_lsvm(self):
         lsvm = self.pysats.create_lsvm(seed=2)
-        bidder_ids = lsvm.get_bidder_ids()
+        bidder_ids = list(lsvm.get_bidder_ids())
         print('Bidder IDs: {}'.format(bidder_ids))
         print('Good IDs: {}'.format(lsvm.get_good_ids()))
         for bidder_id in bidder_ids:
@@ -22,12 +22,12 @@ class LsvmTest(unittest.TestCase):
         
         allocation, total_value = lsvm.get_efficient_allocation()
         print(allocation)
-        self.assertEqual(allocation[0]['value'], 10.899624216435544)
-        self.assertEqual(allocation[1]['value'], 0)
-        self.assertEqual(allocation[2]['value'], 197.9122902472607)
-        self.assertEqual(allocation[3]['value'], 13.76196221807917)
-        self.assertEqual(allocation[4]['value'], 20.5715648091427)
-        self.assertEqual(allocation[5]['value'], 227.03173174626968)
+        self.assertEqual(allocation[bidder_ids[0]]['value'], 10.899624216435544)
+        self.assertEqual(allocation[bidder_ids[1]]['value'], 14.863588882700238)
+        self.assertEqual(allocation[bidder_ids[2]]['value'], 197.91229024726067)
+        self.assertEqual(allocation[bidder_ids[3]]['value'], 0.0)
+        self.assertEqual(allocation[bidder_ids[4]]['value'], 16.870979861919466)
+        self.assertEqual(allocation[bidder_ids[5]]['value'], 209.7691468662042)
 
     def test_lsvm_bid_seeds(self):
         lsvm = self.pysats.create_lsvm(seed=2)

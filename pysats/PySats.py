@@ -16,6 +16,8 @@ class PySats:
             raise Exception("This class is a singleton!")
         else:
             import jnius_config
+            # If you have troubles with the CLASSPATH, use the absolute path below:
+            # jnius_config.set_classpath('C:/dev/uzh/pysats/lib/*')
             jnius_config.set_classpath(
                 '.', os.path.join('lib', '*'))
             PySats.__instance = self

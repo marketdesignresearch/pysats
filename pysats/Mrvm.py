@@ -5,7 +5,9 @@ SizeBasedUniqueRandomXOR = autoclass(
 JavaUtilRNGSupplier = autoclass(
     'org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier')
 Bundle = autoclass(
-    'org.spectrumauctions.sats.core.model.Bundle')
+    'org.marketdesignresearch.mechlib.core.Bundle')
+BundleEntry = autoclass(
+    'org.marketdesignresearch.mechlib.core.BundleEntry')
 
 MRVM_MIP = autoclass(
     'org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP')
@@ -47,13 +49,13 @@ class _Mrvm(JavaClass, metaclass=MetaJavaClass):
         bidderator = self._bidder_list.iterator()
         while bidderator.hasNext():
             bidder = bidderator.next()
-            self.population[bidder.getId()] = bidder
+            self.population[bidder.getId().toString()] = bidder
         
         # Store goods
         goods_iterator = self._bidder_list.iterator().next().getWorld().getLicenses().iterator()
         while goods_iterator.hasNext():
             good = goods_iterator.next()
-            self.goods[good.getId()] = good
+            self.goods[good.getLongId()] = good
 
         self.goods = list(map(lambda _id: self.goods[_id], sorted(self.goods.keys())))
     
@@ -63,10 +65,11 @@ class _Mrvm(JavaClass, metaclass=MetaJavaClass):
     def calculate_value(self, bidder_id, goods_vector):
         assert len(goods_vector) == len(self.goods)
         bidder = self.population[bidder_id]
-        bundle = Bundle()
+        bundleEntries = autoclass('java.util.HashSet')()
         for i in range(len(goods_vector)):
             if goods_vector[i] == 1:
-                bundle.add(self.goods[i])
+                bundleEntries.add(BundleEntry(self.goods[i], 1))
+        bundle = Bundle(bundleEntries)
         return bidder.calculateValue(bundle).doubleValue()
     
     def get_random_bids(self, bidder_id, number_of_bids, seed=None, mean_bundle_size=49, standard_deviation_bundle_size=24.5):
@@ -83,39 +86,47 @@ class _Mrvm(JavaClass, metaclass=MetaJavaClass):
         xorBidIterator = valueFunction.iterator()
         bids = []
         while (xorBidIterator.hasNext()):
-            xorBid = xorBidIterator.next()
+            bundleValue = xorBidIterator.next()
             bid = []
             for i in range(len(self.goods)):
-                if (xorBid.getLicenses().contains(self.goods[i])):
+                if (bundleValue.getBundle().contains(self.goods[i])):
                     bid.append(1)
                 else:
                     bid.append(0)
-            bid.append(xorBid.value)
+            bid.append(bundleValue.getAmount().doubleValue())
             bids.append(bid)
         return bids
 
-    def get_efficient_allocation(self):
+    def get_efficient_allocation(self, display_output=True):
+        """
+        The efficient allocation is calculated on a generic definition. It is then "translated" into individual licenses that are assigned to bidders.
+        Note that this does NOT result in a consistent allocation, since a single license can be assigned to multiple bidders.
+        The value per bidder is still consistent, which is why this method can still be useful.
+        """
         if self.efficient_allocation:
             return self.efficient_allocation
         
         mip = MRVM_MIP(self._bidder_list)
-        mip.setDisplayOutput(True)
+        mip.setDisplayOutput(display_output)
         
-        generic_allocation = cast(
-            'org.spectrumauctions.sats.opt.domain.GenericAllocation', mip.calculateAllocation())
+        allocation = mip.calculateAllocation()
         
         self.efficient_allocation = {}
 
         for bidder_id, bidder in self.population.items():
             self.efficient_allocation[bidder_id] = {}
             self.efficient_allocation[bidder_id]['good_ids'] = []
-            if generic_allocation.getWinners().contains(bidder):
-                bidder_allocation = generic_allocation.getAllocation(bidder)
-                good_iterator = bidder_allocation.iterator()
-                while good_iterator.hasNext():
-                    self.efficient_allocation[bidder_id]['good_ids'].append(good_iterator.next().getId())
+            if allocation.getWinners().contains(bidder):
+                bidder_allocation = allocation.allocationOf(bidder)
+                bundle_entry_iterator = bidder_allocation.getBundle().getBundleEntries().iterator()
+                while bundle_entry_iterator.hasNext():
+                    bundle_entry = bundle_entry_iterator.next()
+                    count = bundle_entry.getAmount()
+                    licenses_iterator = cast('org.spectrumauctions.sats.core.model.mrvm.MRVMGenericDefinition', bundle_entry.getGood()).containedGoods().iterator()
+                    for i in range(0, count):
+                        assert licenses_iterator.hasNext()
+                        self.efficient_allocation[bidder_id]['good_ids'].append(licenses_iterator.next().getLongId())
 
-            self.efficient_allocation[bidder_id]['value'] = generic_allocation.getTradeValue(
-                bidder).doubleValue()
+            self.efficient_allocation[bidder_id]['value'] = bidder_allocation.getValue().doubleValue() if allocation.getWinners().contains(bidder) else 0.0
         
-        return self.efficient_allocation, generic_allocation.totalValue.doubleValue()
+        return self.efficient_allocation, allocation.getTotalAllocationValue().doubleValue()

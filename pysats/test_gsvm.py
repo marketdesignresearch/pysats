@@ -9,7 +9,7 @@ class GsvmTest(unittest.TestCase):
     
     def test_gsvm(self):
         gsvm = self.pysats.create_gsvm(seed=10)
-        bidder_ids = gsvm.get_bidder_ids()
+        bidder_ids = list(gsvm.get_bidder_ids())
         print('Bidder IDs: {}'.format(bidder_ids))
         print('Good IDs: {}'.format(gsvm.get_good_ids()))
         for bidder_id in bidder_ids:
@@ -21,16 +21,15 @@ class GsvmTest(unittest.TestCase):
             bids = gsvm.get_random_bids(bidder_id, 10)
             print(bids)
 
-        allocation, total_value = gsvm.get_efficient_allocation(
-            allowAssigningLicensesWithZeroBasevalue=False)
+        allocation, total_value = gsvm.get_efficient_allocation()
         print(allocation)
-        self.assertEqual(allocation[0]['value'], 0)
-        self.assertEqual(allocation[1]['value'], 211.1677522303495)
-        self.assertEqual(allocation[2]['value'], 0)
-        self.assertEqual(allocation[3]['value'], 199.12104698410005)
-        self.assertEqual(allocation[4]['value'], 0)
-        self.assertEqual(allocation[5]['value'], 145.4180879903979)
-        self.assertEqual(allocation[6]['value'], 0)
+        self.assertEqual(allocation[bidder_ids[0]]['value'], 63.956524457507044)
+        self.assertEqual(allocation[bidder_ids[1]]['value'], 159.36257137727895)
+        self.assertEqual(allocation[bidder_ids[2]]['value'], 7.151543249868508)
+        self.assertEqual(allocation[bidder_ids[3]]['value'], 142.94765881000774)
+        self.assertEqual(allocation[bidder_ids[4]]['value'], 0)
+        self.assertEqual(allocation[bidder_ids[5]]['value'], 91.18130341220245)
+        self.assertEqual(allocation[bidder_ids[6]]['value'], 9.00418233442389)
 
     def test_gsvm_bid_seeds(self):
         gsvm = self.pysats.create_gsvm(seed=2)
