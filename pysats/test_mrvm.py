@@ -1,5 +1,5 @@
 import unittest
-from PySats import PySats
+from pysats import PySats
 
 
 class MrvmTest(unittest.TestCase):
@@ -7,11 +7,13 @@ class MrvmTest(unittest.TestCase):
     def setUp(self):
         self.pysats = PySats.getInstance()
 
-    
+
     def test_mrvm(self):
         mrvm = self.pysats.create_mrvm(seed=10)
         bidder_ids = list(mrvm.get_bidder_ids())
         print('Bidder IDs: {}'.format(bidder_ids))
+        good_ids = list(mrvm.get_good_ids())
+        print('Goods IDs: {}'.format(good_ids))
         for bidder_id in bidder_ids:
             # Query some value
             value = mrvm.calculate_value(

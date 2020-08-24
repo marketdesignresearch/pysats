@@ -15,7 +15,7 @@ MRVM_MIP = autoclass(
 class _Mrvm(JavaClass, metaclass=MetaJavaClass):
     __javaclass__ = 'org/spectrumauctions/sats/core/model/mrvm/MultiRegionModel'
 
-    # TODO: I don't find a way to have the more direct accessors of the DefaultModel class. So for now, I'm mirroring the accessors 
+    # TODO: I don't find a way to have the more direct accessors of the DefaultModel class. So for now, I'm mirroring the accessors
     #createNewPopulation = JavaMultipleMethod([
     #    '()Ljava/util/List;',
     #    '(J)Ljava/util/List;'])
@@ -41,7 +41,7 @@ class _Mrvm(JavaClass, metaclass=MetaJavaClass):
         self.setNumberOfNationalBidders(number_of_national_bidders)
         self.setNumberOfRegionalBidders(number_of_regional_bidders)
         self.setNumberOfLocalBidders(number_of_local_bidders)
-        
+
         world = self.createWorld(rng)
         self._bidder_list = self.createPopulation(world, rng)
 
@@ -50,7 +50,7 @@ class _Mrvm(JavaClass, metaclass=MetaJavaClass):
         while bidderator.hasNext():
             bidder = bidderator.next()
             self.population[bidder.getId().toString()] = bidder
-        
+
         # Store goods
         goods_iterator = self._bidder_list.iterator().next().getWorld().getLicenses().iterator()
         while goods_iterator.hasNext():
@@ -58,9 +58,13 @@ class _Mrvm(JavaClass, metaclass=MetaJavaClass):
             self.goods[good.getLongId()] = good
 
         self.goods = list(map(lambda _id: self.goods[_id], sorted(self.goods.keys())))
-    
+
     def get_bidder_ids(self):
         return self.population.keys()
+
+    # quick and dirty solution, alos needed this the get_good_ids method for MRVM
+    def get_good_ids(self):
+        return dict.fromkeys(list(range(98))).keys()
 
     def calculate_value(self, bidder_id, goods_vector):
         assert len(goods_vector) == len(self.goods)
@@ -71,7 +75,7 @@ class _Mrvm(JavaClass, metaclass=MetaJavaClass):
                 bundleEntries.add(BundleEntry(self.goods[i], 1))
         bundle = Bundle(bundleEntries)
         return bidder.calculateValue(bundle).doubleValue()
-    
+
     def get_random_bids(self, bidder_id, number_of_bids, seed=None, mean_bundle_size=49, standard_deviation_bundle_size=24.5):
         bidder = self.population[bidder_id]
         if seed:
@@ -104,13 +108,13 @@ class _Mrvm(JavaClass, metaclass=MetaJavaClass):
         The value per bidder is still consistent, which is why this method can still be useful.
         """
         if self.efficient_allocation:
-            return self.efficient_allocation
-        
+            return self.efficient_allocation, sum([self.efficient_allocation[bidder_id]['value'] for bidder_id in self.efficient_allocation.keys()])
+
         mip = MRVM_MIP(self._bidder_list)
         mip.setDisplayOutput(display_output)
-        
+
         allocation = mip.calculateAllocation()
-        
+
         self.efficient_allocation = {}
 
         for bidder_id, bidder in self.population.items():
@@ -128,5 +132,5 @@ class _Mrvm(JavaClass, metaclass=MetaJavaClass):
                         self.efficient_allocation[bidder_id]['good_ids'].append(licenses_iterator.next().getLongId())
 
             self.efficient_allocation[bidder_id]['value'] = bidder_allocation.getValue().doubleValue() if allocation.getWinners().contains(bidder) else 0.0
-        
+
         return self.efficient_allocation, allocation.getTotalAllocationValue().doubleValue()

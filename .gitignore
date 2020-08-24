@@ -141,4 +141,11 @@ dmypy.json
 # Ignore all local history of files
 .history
 
+#sats and cplex jars in lib folder:
+/pysats/lib/
+
+#sats_ouptut:
+/pysats/sats_output/
+
+
 # End of https://www.gitignore.io/api/python,visualstudiocode

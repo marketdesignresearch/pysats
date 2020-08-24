@@ -14,7 +14,7 @@ GSVMStandardMIP = autoclass(
 class _Gsvm(JavaClass, metaclass=MetaJavaClass):
     __javaclass__ = 'org/spectrumauctions/sats/core/model/gsvm/GlobalSynergyValueModel'
 
-    # TODO: I don't find a way to have the more direct accessors of the DefaultModel class. So for now, I'm mirroring the accessors 
+    # TODO: I don't find a way to have the more direct accessors of the DefaultModel class. So for now, I'm mirroring the accessors
     # createNewPopulation = JavaMultipleMethod([
     #    '()Ljava/util/List;',
     #    '(J)Ljava/util/List;'])
@@ -48,7 +48,7 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
         while bidderator.hasNext():
             bidder = bidderator.next()
             self.population[bidder.getId().toString()] = bidder
-        
+
         # Store goods
         goods_iterator = self.world.getLicenses().iterator()
         count = 0
@@ -57,8 +57,8 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
             assert good.getLongId() == count
             count += 1
             self.goods[good.getLongId()] = good
-        
-    
+
+
     def get_bidder_ids(self):
         return self.population.keys()
 
@@ -74,7 +74,7 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
                 bundleEntries.add(BundleEntry(self.goods[i], 1))
         bundle = Bundle(bundleEntries)
         return bidder.calculateValue(bundle).doubleValue()
-    
+
     def get_random_bids(self, bidder_id, number_of_bids, seed=None, mean_bundle_size=9, standard_deviation_bundle_size=4.5):
         bidder = self.population[bidder_id]
         if seed:
@@ -102,13 +102,13 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
 
     def get_efficient_allocation(self, display_output=True):
         if self.efficient_allocation:
-            return self.efficient_allocation
-        
+            return self.efficient_allocation, sum([self.efficient_allocation[bidder_id]['value'] for bidder_id in self.efficient_allocation.keys()])
+
         mip = GSVMStandardMIP(self.world, self._bidder_list)
         mip.setDisplayOutput(display_output)
-        
+
         allocation = mip.calculateAllocation()
-        
+
         self.efficient_allocation = {}
 
         for bidder_id, bidder in self.population.items():
@@ -120,5 +120,5 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
                 self.efficient_allocation[bidder_id]['good_ids'].append(good_iterator.next().getLongId())
 
             self.efficient_allocation[bidder_id]['value'] = bidder_allocation.getValue().doubleValue()
-        
+
         return self.efficient_allocation, allocation.getTotalAllocationValue().doubleValue()

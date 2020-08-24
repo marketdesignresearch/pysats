@@ -1,12 +1,12 @@
 import unittest
-from PySats import PySats
+from pysats import PySats
 
 
 class GsvmTest(unittest.TestCase):
 
     def setUp(self):
         self.pysats = PySats.getInstance()
-    
+
     def test_gsvm(self):
         gsvm = self.pysats.create_gsvm(seed=10)
         bidder_ids = list(gsvm.get_bidder_ids())

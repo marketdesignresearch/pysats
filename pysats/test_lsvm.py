@@ -1,9 +1,9 @@
 import unittest
-from PySats import PySats
+from pysats import PySats
 
 
 class LsvmTest(unittest.TestCase):
-    
+
     def setUp(self):
         self.pysats = PySats.getInstance()
 
@@ -19,7 +19,7 @@ class LsvmTest(unittest.TestCase):
             # Generate some bids
             bids = lsvm.get_random_bids(bidder_id, 10)
             print(bids)
-        
+
         allocation, total_value = lsvm.get_efficient_allocation()
         print(allocation)
         self.assertEqual(allocation[bidder_ids[0]]['value'], 10.899624216435544)
