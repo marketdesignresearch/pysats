@@ -32,7 +32,7 @@ class GsvmTest(unittest.TestCase):
         self.assertEqual(allocation[bidder_ids[6]]['value'], 9.00418233442389)
 
     def test_gsvm_bid_seeds(self):
-        gsvm = self.pysats.create_gsvm(seed=2)
+        gsvm = self.pysats.create_gsvm(seed=2, isLegacyGSVM=True)
         bidder_ids = gsvm.get_bidder_ids()
         for bidder_id in bidder_ids:
             # Generate some bids

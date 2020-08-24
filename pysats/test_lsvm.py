@@ -30,7 +30,7 @@ class LsvmTest(unittest.TestCase):
         self.assertEqual(allocation[bidder_ids[5]]['value'], 209.7691468662042)
 
     def test_lsvm_bid_seeds(self):
-        lsvm = self.pysats.create_lsvm(seed=2)
+        lsvm = self.pysats.create_lsvm(seed=2, isLegacyLSVM=True)
         bidder_ids = lsvm.get_bidder_ids()
         for bidder_id in bidder_ids:
             # Generate some bids
