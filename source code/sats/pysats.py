@@ -23,13 +23,13 @@ class PySats:
             PySats.__instance = self
 
     def create_lsvm(self, seed=None, number_of_national_bidders=1, number_of_regional_bidders=5, isLegacyLSVM=False):
-        from lsvm import _Lsvm
+        from sats.lsvm import _Lsvm
         return _Lsvm(seed, number_of_national_bidders, number_of_regional_bidders, isLegacyLSVM)
 
     def create_gsvm(self, seed=None, number_of_national_bidders=1, number_of_regional_bidders=6, isLegacyGSVM=False):
-        from gsvm import _Gsvm
+        from sats.gsvm import _Gsvm
         return _Gsvm(seed, number_of_national_bidders, number_of_regional_bidders, isLegacyGSVM)
 
     def create_mrvm(self, seed=None, number_of_national_bidders=3, number_of_regional_bidders=4, number_of_local_bidders=3):
-        from mrvm import _Mrvm
+        from sats.mrvm import _Mrvm
         return _Mrvm(seed, number_of_national_bidders, number_of_regional_bidders, number_of_local_bidders)

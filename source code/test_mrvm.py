@@ -1,5 +1,5 @@
 import unittest
-from pysats import PySats
+from sats.pysats import PySats
 
 
 class MrvmTest(unittest.TestCase):
