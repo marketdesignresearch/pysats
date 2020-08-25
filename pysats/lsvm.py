@@ -39,6 +39,9 @@ class _Lsvm(JavaClass, metaclass=MetaJavaClass):
 
         self.setNumberOfNationalBidders(number_of_national_bidders)
         self.setNumberOfRegionalBidders(number_of_regional_bidders)
+        print('\n###### ATTENTION ######')
+        print('isLegacyLSVM: ', isLegacyLSVM)
+        print('#######################\n')
         self.setLegacyLSVM(isLegacyLSVM)
         world = self.createWorld(rng)
         self._bidder_list = self.createPopulation(world, rng)

@@ -39,6 +39,9 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
 
         self.setNumberOfNationalBidders(number_of_national_bidders)
         self.setNumberOfRegionalBidders(number_of_regional_bidders)
+        print('\n###### ATTENTION ######')
+        print('isLegacyGSVM: ', isLegacyGSVM)
+        print('#######################\n')
         self.setLegacyGSVM(isLegacyGSVM)
         self.world = self.createWorld(rng)
         self._bidder_list = self.createPopulation(self.world, rng)
