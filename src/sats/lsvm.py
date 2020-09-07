@@ -8,43 +8,45 @@ Bundle = autoclass(
     'org.marketdesignresearch.mechlib.core.Bundle')
 BundleEntry = autoclass(
     'org.marketdesignresearch.mechlib.core.BundleEntry')
-GSVMStandardMIP = autoclass(
-    'org.spectrumauctions.sats.opt.model.gsvm.GSVMStandardMIP')
+LSVMStandardMIP = autoclass(
+    'org.spectrumauctions.sats.opt.model.lsvm.LSVMStandardMIP')
 
-class _Gsvm(JavaClass, metaclass=MetaJavaClass):
-    __javaclass__ = 'org/spectrumauctions/sats/core/model/gsvm/GlobalSynergyValueModel'
+class _Lsvm(JavaClass, metaclass=MetaJavaClass):
+    __javaclass__ = 'org/spectrumauctions/sats/core/model/lsvm/LocalSynergyValueModel'
 
     # TODO: I don't find a way to have the more direct accessors of the DefaultModel class. So for now, I'm mirroring the accessors
-    # createNewPopulation = JavaMultipleMethod([
+    #createNewPopulation = JavaMultipleMethod([
     #    '()Ljava/util/List;',
     #    '(J)Ljava/util/List;'])
     setNumberOfNationalBidders = JavaMethod('(I)V')
     setNumberOfRegionalBidders = JavaMethod('(I)V')
     createWorld = JavaMethod(
-        '(Lorg/spectrumauctions/sats/core/util/random/RNGSupplier;)Lorg/spectrumauctions/sats/core/model/gsvm/GSVMWorld;')
+        '(Lorg/spectrumauctions/sats/core/util/random/RNGSupplier;)Lorg/spectrumauctions/sats/core/model/lsvm/LSVMWorld;')
     createPopulation = JavaMethod(
         '(Lorg/spectrumauctions/sats/core/model/World;Lorg/spectrumauctions/sats/core/util/random/RNGSupplier;)Ljava/util/List;')
-    setLegacyGSVM = JavaMethod('(Z)V')
+    setLegacyLSVM = JavaMethod('(Z)V')
 
-    population = {}
-    goods = {}
-    efficient_allocation = None
+    
 
-    def __init__(self, seed, number_of_national_bidders, number_of_regional_bidders, isLegacyGSVM=False):
+    def __init__(self, seed, number_of_national_bidders, number_of_regional_bidders, isLegacyLSVM=False):
         super().__init__()
         if seed:
             rng = JavaUtilRNGSupplier(seed)
         else:
             rng = JavaUtilRNGSupplier()
 
+        self.population = {}
+        self.goods = {}
+        self.efficient_allocation = None
+
         self.setNumberOfNationalBidders(number_of_national_bidders)
         self.setNumberOfRegionalBidders(number_of_regional_bidders)
         print('\n###### ATTENTION ######')
-        print('isLegacyGSVM: ', isLegacyGSVM)
+        print('isLegacyLSVM: ', isLegacyLSVM)
         print('#######################\n')
-        self.setLegacyGSVM(isLegacyGSVM)
-        self.world = self.createWorld(rng)
-        self._bidder_list = self.createPopulation(self.world, rng)
+        self.setLegacyLSVM(isLegacyLSVM)
+        world = self.createWorld(rng)
+        self._bidder_list = self.createPopulation(world, rng)
 
         # Store bidders
         bidderator = self._bidder_list.iterator()
@@ -53,7 +55,7 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
             self.population[bidder.getId().toString()] = bidder
 
         # Store goods
-        goods_iterator = self.world.getLicenses().iterator()
+        goods_iterator = self._bidder_list.iterator().next().getWorld().getLicenses().iterator()
         count = 0
         while goods_iterator.hasNext():
             good = goods_iterator.next()
@@ -107,7 +109,7 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
         if self.efficient_allocation:
             return self.efficient_allocation, sum([self.efficient_allocation[bidder_id]['value'] for bidder_id in self.efficient_allocation.keys()])
 
-        mip = GSVMStandardMIP(self.world, self._bidder_list)
+        mip = LSVMStandardMIP(self._bidder_list)
         mip.setDisplayOutput(display_output)
 
         allocation = mip.calculateAllocation()

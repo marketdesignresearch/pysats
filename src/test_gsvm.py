@@ -7,6 +7,13 @@ class GsvmTest(unittest.TestCase):
     def setUp(self):
         self.pysats = PySats.getInstance()
 
+    def test_multi_instance(self):
+        gsvm = self.pysats.create_gsvm(seed=111)
+        bidder_ids = gsvm.get_bidder_ids()
+        for bidder_id in bidder_ids:
+            print('Bidder: ', bidder_id)
+        self.assertEqual(len(bidder_ids), 7)
+
     def test_gsvm(self):
         gsvm = self.pysats.create_gsvm(seed=10)
         bidder_ids = list(gsvm.get_bidder_ids())
