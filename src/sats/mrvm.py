@@ -47,9 +47,11 @@ class _Mrvm(JavaClass, metaclass=MetaJavaClass):
 
         # Store bidders
         bidderator = self._bidder_list.iterator()
+        count = 0
         while bidderator.hasNext():
             bidder = bidderator.next()
-            self.population[bidder.getId().toString()] = bidder
+            self.population[count] = bidder
+            count += 1
 
         # Store goods
         goods_iterator = self._bidder_list.iterator().next().getWorld().getLicenses().iterator()
