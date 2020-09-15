@@ -64,7 +64,7 @@ class _Mrvm(JavaClass, metaclass=MetaJavaClass):
     def get_bidder_ids(self):
         return self.population.keys()
 
-    # quick and dirty solution, alos needed this the get_good_ids method for MRVM
+    # quick and dirty solution, needed the get_good_ids method for MRVM
     def get_good_ids(self):
         return dict.fromkeys(list(range(98))).keys()
 

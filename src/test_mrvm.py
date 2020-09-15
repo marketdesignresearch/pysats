@@ -9,7 +9,9 @@ class MrvmTest(unittest.TestCase):
 
 
     def test_mrvm(self):
-        mrvm = self.pysats.create_mrvm(seed=10)
+        instance_seed = 10
+        mrvm = self.pysats.create_mrvm(seed=instance_seed)
+        print('Seed:', instance_seed)
         bidder_ids = list(mrvm.get_bidder_ids())
         print('Bidder IDs: {}'.format(bidder_ids))
         good_ids = list(mrvm.get_good_ids())
@@ -31,7 +33,7 @@ class MrvmTest(unittest.TestCase):
             print(value)
             # Generate some bids
             bids = mrvm.get_random_bids(bidder_id, 10)
-            print(bids)
+            #print(bids)
 
         allocation, total_value = mrvm.get_efficient_allocation()
         print(allocation)
@@ -47,13 +49,24 @@ class MrvmTest(unittest.TestCase):
         self.assertEqual(round(allocation[bidder_ids[9]]['value'], 2),  2438399732.69)
 
     def test_mrvm_bid_seeds(self):
-        mrvm = self.pysats.create_mrvm(seed=2)
+        instance_seed = 2
+        mrvm = self.pysats.create_mrvm(seed=instance_seed)
+        print('Seed:', instance_seed)
         bidder_ids = mrvm.get_bidder_ids()
         for bidder_id in bidder_ids:
             # Generate some bids
             bids = mrvm.get_random_bids(bidder_id, 10, seed=123)
             new_bids = mrvm.get_random_bids(bidder_id, 10, seed=123)
             self.assertEqual(bids, new_bids)
+
+    def test_multi_instance(self):
+        instance_seed = 222
+        mrvm = self.pysats.create_mrvm(seed=instance_seed)
+        print('Seed:', instance_seed)
+        bidder_ids = mrvm.get_bidder_ids()
+        for bidder_id in bidder_ids:
+            print('Bidder: ', bidder_id)
+        self.assertEqual(len(bidder_ids), 10)
 
 if __name__ == '__main__':
     unittest.main()

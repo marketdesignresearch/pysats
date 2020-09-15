@@ -8,7 +8,9 @@ class LsvmTest(unittest.TestCase):
         self.pysats = PySats.getInstance()
 
     def test_lsvm(self):
-        lsvm = self.pysats.create_lsvm(seed=2)
+        instance_seed=2
+        lsvm = self.pysats.create_lsvm(seed=instance_seed)
+        print('Seed:', instance_seed)
         bidder_ids = list(lsvm.get_bidder_ids())
         print('Bidder IDs: {}'.format(bidder_ids))
         print('Good IDs: {}'.format(lsvm.get_good_ids()))
@@ -30,13 +32,24 @@ class LsvmTest(unittest.TestCase):
         self.assertEqual(allocation[bidder_ids[5]]['value'], 209.7691468662042)
 
     def test_lsvm_bid_seeds(self):
-        lsvm = self.pysats.create_lsvm(seed=2, isLegacyLSVM=True)
+        instance_seed=22
+        lsvm = self.pysats.create_lsvm(seed=instance_seed)
+        print('Seed:', instance_seed)
         bidder_ids = lsvm.get_bidder_ids()
         for bidder_id in bidder_ids:
             # Generate some bids
             bids = lsvm.get_random_bids(bidder_id, 10, seed=123)
             new_bids = lsvm.get_random_bids(bidder_id, 10, seed=123)
             self.assertEqual(bids, new_bids)
+
+    def test_multi_instance(self):
+        instance_seed = 111
+        lsvm = self.pysats.create_lsvm(seed=instance_seed)
+        print('Seed:', instance_seed)
+        bidder_ids = lsvm.get_bidder_ids()
+        for bidder_id in bidder_ids:
+            print('Bidder: ', bidder_id)
+        self.assertEqual(len(bidder_ids), 6)
 
 
 if __name__ == '__main__':

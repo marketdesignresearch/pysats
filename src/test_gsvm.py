@@ -7,15 +7,10 @@ class GsvmTest(unittest.TestCase):
     def setUp(self):
         self.pysats = PySats.getInstance()
 
-    def test_multi_instance(self):
-        gsvm = self.pysats.create_gsvm(seed=111)
-        bidder_ids = gsvm.get_bidder_ids()
-        for bidder_id in bidder_ids:
-            print('Bidder: ', bidder_id)
-        self.assertEqual(len(bidder_ids), 7)
-
     def test_gsvm(self):
-        gsvm = self.pysats.create_gsvm(seed=10)
+        instance_seed=10
+        gsvm = self.pysats.create_gsvm(seed=instance_seed)
+        print('Seed:', instance_seed)
         bidder_ids = list(gsvm.get_bidder_ids())
         print('Bidder IDs: {}'.format(bidder_ids))
         print('Good IDs: {}'.format(gsvm.get_good_ids()))
@@ -39,13 +34,24 @@ class GsvmTest(unittest.TestCase):
         self.assertEqual(allocation[bidder_ids[6]]['value'], 9.00418233442389)
 
     def test_gsvm_bid_seeds(self):
-        gsvm = self.pysats.create_gsvm(seed=2, isLegacyGSVM=True)
+        instance_seed=2
+        gsvm = self.pysats.create_gsvm(seed=instance_seed, isLegacyGSVM=True)
+        print('Seed:', instance_seed)
         bidder_ids = gsvm.get_bidder_ids()
         for bidder_id in bidder_ids:
             # Generate some bids
             bids = gsvm.get_random_bids(bidder_id, 10, seed=123)
             new_bids = gsvm.get_random_bids(bidder_id, 10, seed=123)
             self.assertEqual(bids, new_bids)
+
+    def test_multi_instance(self):
+        instance_seed = 111
+        gsvm = self.pysats.create_gsvm(seed=instance_seed)
+        print('Seed:', instance_seed)
+        bidder_ids = gsvm.get_bidder_ids()
+        for bidder_id in bidder_ids:
+            print('Bidder: ', bidder_id)
+        self.assertEqual(len(bidder_ids), 7)
 
 if __name__ == '__main__':
     unittest.main()
