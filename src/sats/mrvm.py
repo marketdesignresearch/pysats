@@ -4,6 +4,8 @@ SizeBasedUniqueRandomXOR = autoclass(
     'org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR')
 JavaUtilRNGSupplier = autoclass(
     'org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier')
+Random = autoclass('java.util.Random')
+HashSet = autoclass('java.util.HashSet')
 Bundle = autoclass(
     'org.marketdesignresearch.mechlib.core.Bundle')
 BundleEntry = autoclass(
@@ -71,12 +73,46 @@ class _Mrvm(JavaClass, metaclass=MetaJavaClass):
     def calculate_value(self, bidder_id, goods_vector):
         assert len(goods_vector) == len(self.goods)
         bidder = self.population[bidder_id]
-        bundleEntries = autoclass('java.util.HashSet')()
+        bundleEntries = HashSet()
         for i in range(len(goods_vector)):
             if goods_vector[i] == 1:
                 bundleEntries.add(BundleEntry(self.goods[i], 1))
         bundle = Bundle(bundleEntries)
         return bidder.calculateValue(bundle).doubleValue()
+    
+    def get_goods_of_interest(self, bidder_id):
+        bidder = self.population[bidder_id]
+        goods_of_interest = []
+        for i in range(len(self.goods)):
+            good_set = HashSet()
+            good_set.add(self.goods[i])
+            bundle = Bundle.of(good_set)
+            if bidder.getValue(bundle, True).doubleValue() > 0:
+                goods_of_interest.append(i)
+        return goods_of_interest
+    
+    def get_uniform_random_bids(self, bidder_id, number_of_bids, seed=None):
+        bidder = self.population[bidder_id]
+        goods = autoclass('java.util.ArrayList')()
+        for good in self.goods: goods.add(good)
+        if seed:
+            random = Random(seed)
+        else:
+            random = Random()
+        
+        bids = []
+        for i in range(number_of_bids):
+            bid = []
+            bundle = bidder.getAllocationLimit().getUniformRandomBundle(random, goods)
+            for i in range(len(self.goods)):
+                if (bundle.contains(self.goods[i])):
+                    bid.append(1)
+                else:
+                    bid.append(0)
+            bid.append(bidder.getValue(bundle).doubleValue())
+            bids.append(bid)
+        return bids
+
 
     def get_random_bids(self, bidder_id, number_of_bids, seed=None, mean_bundle_size=49, standard_deviation_bundle_size=24.5):
         bidder = self.population[bidder_id]

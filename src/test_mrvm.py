@@ -58,6 +58,10 @@ class MrvmTest(unittest.TestCase):
             bids = mrvm.get_random_bids(bidder_id, 10, seed=123)
             new_bids = mrvm.get_random_bids(bidder_id, 10, seed=123)
             self.assertEqual(bids, new_bids)
+            # Generate some bids with the new method
+            bids = mrvm.get_uniform_random_bids(bidder_id, 10, seed=123)
+            new_bids = mrvm.get_uniform_random_bids(bidder_id, 10, seed=123)
+            self.assertEqual(bids, new_bids)
 
     def test_multi_instance(self):
         instance_seed = 222
@@ -67,6 +71,12 @@ class MrvmTest(unittest.TestCase):
         for bidder_id in bidder_ids:
             print('Bidder: ', bidder_id)
         self.assertEqual(len(bidder_ids), 10)
+    
+    def test_goods_of_interest(self):
+        mrvm = self.pysats.create_mrvm()
+        for bidder_id in mrvm.get_bidder_ids():
+            goods_of_interest = mrvm.get_goods_of_interest(bidder_id)
+            print(f'{mrvm.population[bidder_id].getName()}: {goods_of_interest}')
 
 if __name__ == '__main__':
     unittest.main()
