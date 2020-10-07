@@ -9,7 +9,7 @@ class GsvmTest(unittest.TestCase):
 
     def test_gsvm(self):
         instance_seed=10
-        gsvm = self.pysats.create_gsvm(seed=instance_seed)
+        gsvm = self.pysats.create_gsvm(seed=instance_seed, isLegacyGSVM=False)
         print('Seed:', instance_seed)
         bidder_ids = list(gsvm.get_bidder_ids())
         print('Bidder IDs: {}'.format(bidder_ids))
@@ -35,7 +35,7 @@ class GsvmTest(unittest.TestCase):
 
     def test_gsvm_bid_seeds(self):
         instance_seed=2
-        gsvm = self.pysats.create_gsvm(seed=instance_seed, isLegacyGSVM=True)
+        gsvm = self.pysats.create_gsvm(seed=instance_seed, isLegacyGSVM=False)
         print('Seed:', instance_seed)
         bidder_ids = gsvm.get_bidder_ids()
         for bidder_id in bidder_ids:
@@ -50,15 +50,17 @@ class GsvmTest(unittest.TestCase):
 
     def test_multi_instance(self):
         instance_seed = 111
-        gsvm = self.pysats.create_gsvm(seed=instance_seed)
+        gsvm = self.pysats.create_gsvm(seed=instance_seed, isLegacyGSVM=False)
         print('Seed:', instance_seed)
         bidder_ids = gsvm.get_bidder_ids()
         for bidder_id in bidder_ids:
             print('Bidder: ', bidder_id)
         self.assertEqual(len(bidder_ids), 7)
-    
+
     def test_goods_of_interest(self):
-        gsvm = self.pysats.create_gsvm()
+        instance_seed = 222
+        gsvm = self.pysats.create_gsvm(seed=instance_seed, isLegacyGSVM=False)
+        print('Seed:', instance_seed)
         for bidder_id in gsvm.get_bidder_ids():
             goods_of_interest = gsvm.get_goods_of_interest(bidder_id)
             print(f'{gsvm.population[bidder_id].getName()}: {goods_of_interest}')
