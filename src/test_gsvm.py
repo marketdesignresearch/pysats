@@ -43,6 +43,10 @@ class GsvmTest(unittest.TestCase):
             bids = gsvm.get_random_bids(bidder_id, 10, seed=123)
             new_bids = gsvm.get_random_bids(bidder_id, 10, seed=123)
             self.assertEqual(bids, new_bids)
+            # Generate some bids with the new method
+            bids = gsvm.get_uniform_random_bids(bidder_id, 10, seed=123)
+            new_bids = gsvm.get_uniform_random_bids(bidder_id, 10, seed=123)
+            self.assertEqual(bids, new_bids)
 
     def test_multi_instance(self):
         instance_seed = 111
@@ -52,6 +56,13 @@ class GsvmTest(unittest.TestCase):
         for bidder_id in bidder_ids:
             print('Bidder: ', bidder_id)
         self.assertEqual(len(bidder_ids), 7)
+    
+    def test_goods_of_interest(self):
+        gsvm = self.pysats.create_gsvm()
+        for bidder_id in gsvm.get_bidder_ids():
+            goods_of_interest = gsvm.get_goods_of_interest(bidder_id)
+            print(f'{gsvm.population[bidder_id].getName()}: {goods_of_interest}')
+
 
 if __name__ == '__main__':
     unittest.main()
