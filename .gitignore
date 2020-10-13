@@ -148,7 +148,7 @@ dmypy.json
 /src/sats_output/
 
 #all bids:
-/sats_all_bids/
+/sats/all_bids/
 
 #all optimal allocations:
 /sats_optimal_allocations/
