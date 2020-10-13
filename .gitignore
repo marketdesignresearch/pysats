@@ -142,10 +142,16 @@ dmypy.json
 .history
 
 #sats and cplex jars in lib folder:
-/pysats/lib/
+/src/lib/
 
 #sats_ouptut:
-/pysats/sats_output/
+/src/sats_output/
+
+#all bids:
+/sats_all_bids/
+
+#all optimal allocations:
+/sats_optimal_allocations/
 
 
 # End of https://www.gitignore.io/api/python,visualstudiocode
