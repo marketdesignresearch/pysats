@@ -17,9 +17,8 @@ class PySats:
         else:
             import jnius_config
             # If you have troubles with the CLASSPATH, use the absolute path below:
-            # jnius_config.set_classpath('C:/dev/uzh/pysats/lib/*')
-            jnius_config.set_classpath(
-                '.', os.path.join('lib', '*'))
+            #jnius_config.set_classpath('C://Users//jakob//PhD//Python_Projects//Sats//src//lib//*')
+            jnius_config.set_classpath(    '.', os.path.join('lib', '*'))
             PySats.__instance = self
 
     def create_lsvm(self, seed=None, number_of_national_bidders=1, number_of_regional_bidders=5, isLegacyLSVM=False):

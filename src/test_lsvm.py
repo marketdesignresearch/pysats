@@ -47,7 +47,7 @@ class LsvmTest(unittest.TestCase):
             self.assertEqual(bids, new_bids)
 
     def test_multi_instance(self):
-        instance_seed = 111
+        instance_seed = 3
         lsvm = self.pysats.create_lsvm(seed=instance_seed, isLegacyLSVM=False)
         print('Seed:', instance_seed)
         bidder_ids = lsvm.get_bidder_ids()
@@ -56,7 +56,7 @@ class LsvmTest(unittest.TestCase):
         self.assertEqual(len(bidder_ids), 6)
 
     def test_goods_of_interest(self):
-        instance_seed = 111
+        instance_seed = 4
         lsvm = self.pysats.create_lsvm(seed=instance_seed, isLegacyLSVM=False)
         print('Seed:', instance_seed)
         for bidder_id in lsvm.get_bidder_ids():
