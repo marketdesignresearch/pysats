@@ -39,11 +39,9 @@ class _Mrvm(JavaClass, metaclass=MetaJavaClass):
         self.population = {}
         self.goods = {}
         self.efficient_allocation = None
-
         self.setNumberOfNationalBidders(number_of_national_bidders)
         self.setNumberOfRegionalBidders(number_of_regional_bidders)
         self.setNumberOfLocalBidders(number_of_local_bidders)
-
         world = self.createWorld(rng)
         self._bidder_list = self.createPopulation(world, rng)
 
@@ -63,6 +61,9 @@ class _Mrvm(JavaClass, metaclass=MetaJavaClass):
 
         self.goods = list(map(lambda _id: self.goods[_id], sorted(self.goods.keys())))
 
+    def get_model_name(self):
+        return ('MRVM')
+
     def get_bidder_ids(self):
         return self.population.keys()
 
@@ -79,7 +80,7 @@ class _Mrvm(JavaClass, metaclass=MetaJavaClass):
                 bundleEntries.add(BundleEntry(self.goods[i], 1))
         bundle = Bundle(bundleEntries)
         return bidder.calculateValue(bundle).doubleValue()
-    
+
     def get_goods_of_interest(self, bidder_id):
         bidder = self.population[bidder_id]
         goods_of_interest = []
@@ -90,7 +91,7 @@ class _Mrvm(JavaClass, metaclass=MetaJavaClass):
             if bidder.getValue(bundle, True).doubleValue() > 0:
                 goods_of_interest.append(i)
         return goods_of_interest
-    
+
     def get_uniform_random_bids(self, bidder_id, number_of_bids, seed=None):
         bidder = self.population[bidder_id]
         goods = autoclass('java.util.ArrayList')()
@@ -99,7 +100,7 @@ class _Mrvm(JavaClass, metaclass=MetaJavaClass):
             random = Random(seed)
         else:
             random = Random()
-        
+
         bids = []
         for i in range(number_of_bids):
             bid = []

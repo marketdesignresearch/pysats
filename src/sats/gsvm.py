@@ -34,17 +34,14 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
             rng = JavaUtilRNGSupplier(seed)
         else:
             rng = JavaUtilRNGSupplier()
-    
+
         self.population = {}
         self.goods = {}
         self.efficient_allocation = None
-        
         self.setNumberOfNationalBidders(number_of_national_bidders)
         self.setNumberOfRegionalBidders(number_of_regional_bidders)
-        print('\n###### ATTENTION ######')
-        print('isLegacyGSVM: ', isLegacyGSVM)
-        print('#######################\n')
         self.setLegacyGSVM(isLegacyGSVM)
+        self.isLegacy = isLegacyGSVM
         self.world = self.createWorld(rng)
         self._bidder_list = self.createPopulation(self.world, rng)
 
@@ -65,6 +62,8 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
             count += 1
             self.goods[good.getLongId()] = good
 
+    def get_model_name(self):
+        return ('GSVM')
 
     def get_bidder_ids(self):
         return self.population.keys()
@@ -81,7 +80,7 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
                 bundleEntries.add(BundleEntry(self.goods[i], 1))
         bundle = Bundle(bundleEntries)
         return bidder.calculateValue(bundle).doubleValue()
-  
+
     def get_goods_of_interest(self, bidder_id):
         bidder = self.population[bidder_id]
         goods_of_interest = []
@@ -101,7 +100,7 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
             random = Random(seed)
         else:
             random = Random()
-        
+
         bids = []
         for i in range(number_of_bids):
             bid = []

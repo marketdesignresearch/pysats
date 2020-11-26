@@ -28,7 +28,6 @@ class _Lsvm(JavaClass, metaclass=MetaJavaClass):
         '(Lorg/spectrumauctions/sats/core/model/World;Lorg/spectrumauctions/sats/core/util/random/RNGSupplier;)Ljava/util/List;')
     setLegacyLSVM = JavaMethod('(Z)V')
 
-    
 
     def __init__(self, seed, number_of_national_bidders, number_of_regional_bidders, isLegacyLSVM=False):
         super().__init__()
@@ -40,13 +39,10 @@ class _Lsvm(JavaClass, metaclass=MetaJavaClass):
         self.population = {}
         self.goods = {}
         self.efficient_allocation = None
-
         self.setNumberOfNationalBidders(number_of_national_bidders)
         self.setNumberOfRegionalBidders(number_of_regional_bidders)
-        print('\n###### ATTENTION ######')
-        print('isLegacyLSVM: ', isLegacyLSVM)
-        print('#######################\n')
         self.setLegacyLSVM(isLegacyLSVM)
+        self.isLegacy = isLegacyLSVM
         world = self.createWorld(rng)
         self._bidder_list = self.createPopulation(world, rng)
 
@@ -67,6 +63,9 @@ class _Lsvm(JavaClass, metaclass=MetaJavaClass):
             count += 1
             self.goods[good.getLongId()] = good
 
+
+    def get_model_name(self):
+        return ('LSVM')
 
     def get_bidder_ids(self):
         return self.population.keys()
@@ -94,7 +93,7 @@ class _Lsvm(JavaClass, metaclass=MetaJavaClass):
             if bidder.getValue(bundle, True).doubleValue() > 0:
                 goods_of_interest.append(good_id)
         return goods_of_interest
-    
+
     def get_uniform_random_bids(self, bidder_id, number_of_bids, seed=None):
         bidder = self.population[bidder_id]
         goods = autoclass('java.util.ArrayList')()
@@ -103,7 +102,7 @@ class _Lsvm(JavaClass, metaclass=MetaJavaClass):
             random = Random(seed)
         else:
             random = Random()
-        
+
         bids = []
         for i in range(number_of_bids):
             bid = []
