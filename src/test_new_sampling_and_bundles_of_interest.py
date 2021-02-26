@@ -30,6 +30,6 @@ for bidder_id in auction.get_bidder_ids():
     goods_of_interest = auction.get_goods_of_interest(bidder_id)
     print(f'Items of Interest Bidder_{auction.population[bidder_id].getName()}:{goods_of_interest}\n')
     # new random sampling
-    random_bid = np.asarray(auction.get_uniform_random_bids(bidder_id, 1, seed=11)) # seeting a seed samples same bundle for all bidders!
+    random_bid = np.asarray(auction.get_uniform_random_bids(bidder_id, 1, seed=11)) # setting a seed samples same bundle for all bidders!
     print(f'Random Uniform Bundle for Bidder_{auction.population[bidder_id].getName()} of Shape {random_bid.shape}:{random_bid}\n\nBundle Size: {np.sum(random_bid[:,:-1])}')
     print('\n')
