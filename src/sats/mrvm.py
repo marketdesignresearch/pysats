@@ -140,7 +140,7 @@ class _Mrvm(JavaClass, metaclass=MetaJavaClass):
             bids.append(bid)
         return bids
 
-    def get_efficient_allocation(self, display_output=True):
+    def get_efficient_allocation(self, display_output=False):
         """
         The efficient allocation is calculated on a generic definition. It is then "translated" into individual licenses that are assigned to bidders.
         Note that this does NOT result in a consistent allocation, since a single license can be assigned to multiple bidders.

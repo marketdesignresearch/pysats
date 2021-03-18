@@ -139,7 +139,7 @@ class _Gsvm(JavaClass, metaclass=MetaJavaClass):
             bids.append(bid)
         return bids
 
-    def get_efficient_allocation(self, display_output=True):
+    def get_efficient_allocation(self, display_output=False):
         if self.efficient_allocation:
             return self.efficient_allocation, sum([self.efficient_allocation[bidder_id]['value'] for bidder_id in self.efficient_allocation.keys()])
 
