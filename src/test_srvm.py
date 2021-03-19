@@ -2,7 +2,7 @@ import unittest
 from sats.pysats import PySats
 import numpy as np
 
-class GsvmTest(unittest.TestCase):
+class SrvmTest(unittest.TestCase):
 
     def setUp(self):
         self.pysats = PySats.getInstance()
