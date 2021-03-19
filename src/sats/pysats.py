@@ -32,3 +32,9 @@ class PySats:
     def create_mrvm(self, seed=None, number_of_national_bidders=3, number_of_regional_bidders=4, number_of_local_bidders=3):
         from sats.mrvm import _Mrvm
         return _Mrvm(seed, number_of_national_bidders, number_of_regional_bidders, number_of_local_bidders)
+
+    def create_srvm(self, seed=None, number_of_small_bidders=2, number_of_high_frequency_bidders=1,
+                 number_of_secondary_bidders=2, number_of_primary_bidders=2):
+        from sats.srvm import _Srvm
+        return _Srvm(seed, number_of_small_bidders, number_of_high_frequency_bidders,
+                 number_of_secondary_bidders, number_of_primary_bidders)
