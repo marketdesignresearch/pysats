@@ -12,7 +12,7 @@ requirements:
     - setuptools
 
   run:
-    - python=3
+    - python=3.7
     - cython
     - pyjnius
 
