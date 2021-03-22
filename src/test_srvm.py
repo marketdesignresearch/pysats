@@ -8,7 +8,7 @@ class SrvmTest(unittest.TestCase):
         self.pysats = PySats.getInstance()
 
     def test_srvm(self):
-        instance_seed=10
+        instance_seed=np.random.randint(1, 1000)
         srvm = self.pysats.create_srvm(seed=instance_seed)
         print('Seed:', instance_seed)
         bidder_ids = list(srvm.get_bidder_ids())
@@ -25,6 +25,16 @@ class SrvmTest(unittest.TestCase):
             print(bids)
 
         allocation, total_value = srvm.get_efficient_allocation()
+        print('efficient allocation')
+        alloc_value = 0
+        indicator_sum = np.zeros(len(srvm.get_good_ids()))
+        for bidder, good_dict in allocation.items():
+            indicator = np.zeros(len(srvm.get_good_ids()),dtype=bool)
+            indicator[np.asarray(good_dict['good_ids'], dtype=np.int32)] = 1
+            alloc_value += srvm.calculate_value(bidder, indicator)
+            indicator_sum += indicator.astype(np.float64)
+        self.assertEqual(alloc_value, total_value)
+        self.assertTrue((indicator_sum <= 1).sum() == len(indicator_sum))
         print(allocation)
         
 
