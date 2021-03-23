@@ -27,6 +27,7 @@ class SrvmTest(unittest.TestCase):
 
         print('\nCalculate efficient allocation: goods | value')
         allocation, total_value = srvm.get_efficient_allocation()
+
         for k,v in allocation.items():
             tmp = f'Bidder_{k}: '
             goods = v['good_ids']
@@ -46,7 +47,6 @@ class SrvmTest(unittest.TestCase):
             print('Aggregated indicator alloc:', indicator_sum)
         self.assertAlmostEqual(alloc_value, total_value,places=4)
         self.assertTrue((indicator_sum <= 1).sum() == len(indicator_sum))
-
 
     def test_srvm_bid_seeds(self):
         instance_seed=2
