@@ -44,7 +44,7 @@ class SrvmTest(unittest.TestCase):
             alloc_value += srvm.calculate_value(bidder, indicator)
             indicator_sum += indicator.astype(np.float64)
             print('Aggregated indicator alloc:', indicator_sum)
-        self.assertEqual(alloc_value, total_value)
+        self.assertAlmostEqual(alloc_value, total_value,places=4)
         self.assertTrue((indicator_sum <= 1).sum() == len(indicator_sum))
 
 
