@@ -25,9 +25,9 @@ $ pip install pysats
 Use it in your project as follows. Have a look at the `test/` directory for more examples.
 
 ```python
-from pysats import Pysats
+from pysats import PySats
 
-gsvm = Pysats.getInstance().create_gsvm()
+gsvm = PySats.getInstance().create_gsvm()
 for bidder_id in gsvm.get_bidder_ids():
     goods_of_interest = gsvm.get_goods_of_interest(bidder_id)
     print(f'Bidder_{bidder_id}: {goods_of_interest}')
