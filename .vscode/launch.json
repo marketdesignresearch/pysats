@@ -8,8 +8,7 @@
       "name": "Unittest",
       "type": "python",
       "request": "launch",
-      "module": "unittest",
-      "cwd": "${workspaceFolder}/pysats"
+      "module": "unittest"
     },
 
     {
