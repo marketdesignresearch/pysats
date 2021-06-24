@@ -3,8 +3,8 @@ from .simple_model import SimpleModel
 
 class GenericModel(SimpleModel):
 
-    def __init__(self, seed, mip_path: str, generic_definition_path: str):
-        super().__init__(seed, mip_path)
+    def __init__(self, seed, mip_path: str, generic_definition_path: str, store_files=False):
+        super().__init__(seed, mip_path, store_files)
         self.generic_definition_path = generic_definition_path
 
     def get_random_bids(self, bidder_id, number_of_bids, seed=None, mean_bundle_size=49, standard_deviation_bundle_size=24.5):

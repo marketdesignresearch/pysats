@@ -20,6 +20,14 @@ class SrvmTest(unittest.TestCase):
             print(f'Query value for bundle {bundle}')
             value = srvm.calculate_value(bidder_id, bundle)
             print(f'value={value}')
+            print('Multiple bundles at once:')
+            values = srvm.calculate_values(
+                bidder_id,
+                [
+                    bundle,
+                    np.random.binomial(1, 0.5, len(srvm.get_good_ids())),
+                ])
+            print(f'values={values}')
             print('Generate 3 uniform random bids')
             bids = srvm.get_uniform_random_bids(bidder_id, 3)
             for bid in bids:

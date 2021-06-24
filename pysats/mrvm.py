@@ -12,14 +12,15 @@ class _Mrvm(GenericModel, metaclass=MetaJavaClass):
     createPopulation = JavaMethod(
         '(Lorg/spectrumauctions/sats/core/model/World;Lorg/spectrumauctions/sats/core/util/random/RNGSupplier;)Ljava/util/List;')
 
-    def __init__(self, seed, number_of_national_bidders, number_of_regional_bidders, number_of_local_bidders):
+    def __init__(self, seed, number_of_national_bidders, number_of_regional_bidders, number_of_local_bidders, store_files=False):
         self.number_of_national_bidders = number_of_national_bidders
         self.number_of_regional_bidders = number_of_regional_bidders
         self.number_of_local_bidders = number_of_local_bidders
         super().__init__(
             seed=seed,
             mip_path='org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP',
-            generic_definition_path='org.spectrumauctions.sats.core.model.mrvm.MRVMGenericDefinition'
+            generic_definition_path='org.spectrumauctions.sats.core.model.mrvm.MRVMGenericDefinition',
+            store_files=store_files
         )
 
     def prepare_world(self):

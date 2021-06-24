@@ -14,7 +14,7 @@ class _Srvm(GenericModel, metaclass=MetaJavaClass):
         '(Lorg/spectrumauctions/sats/core/model/World;Lorg/spectrumauctions/sats/core/util/random/RNGSupplier;)Ljava/util/List;')
 
 
-    def __init__(self, seed, number_of_small_bidders, number_of_high_frequency_bidders, number_of_secondary_bidders, number_of_primary_bidders):
+    def __init__(self, seed, number_of_small_bidders, number_of_high_frequency_bidders, number_of_secondary_bidders, number_of_primary_bidders, store_files=False):
         self.number_of_small_bidders = number_of_small_bidders
         self.number_of_high_frequency_bidders = number_of_high_frequency_bidders
         self.number_of_secondary_bidders = number_of_secondary_bidders
@@ -22,7 +22,8 @@ class _Srvm(GenericModel, metaclass=MetaJavaClass):
         super().__init__(
             seed=seed,
             mip_path='org.spectrumauctions.sats.opt.model.srvm.SRVM_MIP',
-            generic_definition_path='org.spectrumauctions.sats.core.model.srvm.SRVMBand'
+            generic_definition_path='org.spectrumauctions.sats.core.model.srvm.SRVMBand',
+            store_files=store_files
         )
 
     def prepare_world(self):
