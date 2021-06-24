@@ -11,7 +11,7 @@ import pickle
 import time
 from collections import OrderedDict
 # own modules
-from sats.pysats import PySats
+from pysats import PySats
 
 # %% Setup
 model_name = 'LSVM'

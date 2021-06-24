@@ -1,5 +1,5 @@
 import unittest
-from sats.pysats import PySats
+from pysats import PySats
 import numpy as np
 
 

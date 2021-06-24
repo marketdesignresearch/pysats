@@ -5,7 +5,7 @@ Created on Tue Nov 24 12:57:55 2020
 @author: jakob
 """
 
-from sats.pysats import PySats
+from pysats import PySats
 import numpy as np
 
 # %%
