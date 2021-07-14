@@ -14,7 +14,7 @@ from collections import OrderedDict
 from sats.pysats import PySats
 
 # %% Setup
-model_name = 'LSVM'
+model_name = 'SRVM'
 isLegacy = False
 path = 'C://Users//jakob//PhD//Python_Projects//Sats//optimal_allocations//' + model_name + '//'
 number_of_instances = 200
@@ -33,6 +33,9 @@ for instance in seeds_instances:
     elif model_name == 'MRVM':
         print(model_name + str(instance))
         auction_instance = PySats.getInstance().create_mrvm(seed=instance) # (1)
+    elif model_name == 'SRVM':
+        print(model_name + str(instance))
+        auction_instance = PySats.getInstance().create_srvm(seed=instance) # (1)
     else:
         raise NotImplementedError('No Value Model with name {}.'.format(model_name))
     print('Solving WDP SATS:')
@@ -48,23 +51,29 @@ for instance in seeds_instances:
     results['Instance_Seed {}'.format(instance)] = [allocation_SATS, value_SATS]
 
 # SAVE results
-filename = '{}_isLegacyGSVM{}_optimal_allocations_seeds{}_{}.pkl'.format(model_name, isLegacy,
+if not isLegacy and model_name in ['LSVM','GSVM']:
+    filename = '{}_isLegacy{}_optimal_allocations_seeds{}_{}.pkl'.format(model_name, isLegacy,
                                                                          seeds_instances[0],
                                                                          seeds_instances[-1])
+else:
+    filename = '{}_optimal_allocations_seeds{}_{}.pkl'.format(model_name,
+                                                              seeds_instances[0],
+                                                              seeds_instances[-1])
+
 print('Saving as: ', filename)
 f = open(path + filename, "wb")
 pickle.dump(results, f)
 f.close()
 # %% Check
 seeds_instances = list(range(1, 200+1))
-f = open(path + '{}_isLegacyGSVM{}_optimal_allocations_seeds{}_{}.pkl'.format(model_name, isLegacy,
-                                                                               seeds_instances[0],
-                                                                               seeds_instances[-1]), "rb")
+f = open(path + '{}_optimal_allocations_seeds{}_{}.pkl'.format(model_name,
+                                                               seeds_instances[0],
+                                                               seeds_instances[-1]), "rb")
 a = pickle.load(f)
 f.close()
 
 seed_instance = 33
-auction_instance = PySats.getInstance().create_gsvm(seed=seed_instance, isLegacyGSVM=False)
+auction_instance = PySats.getInstance().create_srvm(seed=seed_instance)
 #auction_instance = PySats.getInstance().create_lsvm(seed=seed_instance, isLegacyGSVM=False)
 #auction_instance = PySats.getInstance().create_mrvm(seed=seed_instance)
 
