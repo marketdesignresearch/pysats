@@ -13,13 +13,14 @@ class _Lsvm(SimpleModel, metaclass=MetaJavaClass):
     setLegacyLSVM = JavaMethod('(Z)V')
 
 
-    def __init__(self, seed, number_of_national_bidders, number_of_regional_bidders, isLegacyLSVM=False):
+    def __init__(self, seed, number_of_national_bidders, number_of_regional_bidders, isLegacyLSVM=False, store_files=False):
         self.number_of_national_bidders = number_of_national_bidders
         self.number_of_regional_bidders = number_of_regional_bidders
         self.isLegacy = isLegacyLSVM
         super().__init__(
             seed=seed,
-            mip_path='org.spectrumauctions.sats.opt.model.lsvm.LSVMStandardMIP'
+            mip_path='org.spectrumauctions.sats.opt.model.lsvm.LSVMStandardMIP',
+            store_files=store_files
         )
 
     def prepare_world(self):

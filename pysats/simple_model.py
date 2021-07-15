@@ -6,14 +6,21 @@ JavaUtilRNGSupplier = autoclass(
     'org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier')
 Random = autoclass('java.util.Random')
 HashSet = autoclass('java.util.HashSet')
+LinkedList = autoclass('java.util.LinkedList')
 Bundle = autoclass(
     'org.marketdesignresearch.mechlib.core.Bundle')
 BundleEntry = autoclass(
     'org.marketdesignresearch.mechlib.core.BundleEntry')
+InstanceHandler = autoclass(
+    'org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler')
+InMemoryInstanceHandler = autoclass(
+    'org.spectrumauctions.sats.core.util.instancehandling.InMemoryInstanceHandler')
+JSONInstanceHandler = autoclass(
+    'org.spectrumauctions.sats.core.util.instancehandling.JSONInstanceHandler')
 
 class SimpleModel(JavaClass):
 
-    def __init__(self, seed, mip_path: str):
+    def __init__(self, seed, mip_path: str, store_files = False):
         super().__init__()
         if seed:
             rng = JavaUtilRNGSupplier(seed)
@@ -24,6 +31,11 @@ class SimpleModel(JavaClass):
         self.goods = {}
         self.mip_path = mip_path
         self.efficient_allocation = None
+        # The following sets the instance handler to InMemory (i.e., no files are stored), if store_files is false
+        # Note that since InstanceHandler is a singleton, if you're running experiments in parallel, it may lead
+        # to troubles to have this flag set to True in one experiment and False in another one. This is best used
+        # in a consistent way, which is probably the idea anyway in most cases.
+        InstanceHandler.setDefaultHandler(JSONInstanceHandler.getInstance() if store_files else InMemoryInstanceHandler.getInstance())
         self.prepare_world()
         world = self.createWorld(rng)
         self._bidder_list = self.createPopulation(world, rng)
@@ -65,14 +77,17 @@ class SimpleModel(JavaClass):
         return list(self.goods.keys())
 
     def calculate_value(self, bidder_id, goods_vector):
-        assert len(goods_vector) == len(self.goods.keys())
         bidder = self.population[bidder_id]
-        bundleEntries = HashSet()
-        for i in range(len(goods_vector)):
-            if goods_vector[i] == 1:
-                bundleEntries.add(BundleEntry(self.goods[i], 1))
-        bundle = Bundle(bundleEntries)
+        bundle = self._vector_to_bundle(goods_vector)
         return bidder.calculateValue(bundle).doubleValue()
+
+    def calculate_values(self, bidder_id, goods_vector_2D):
+        bidder = self.population[bidder_id]
+        bundles = LinkedList()
+        for goods_vector in goods_vector_2D:
+            bundle = self._vector_to_bundle(goods_vector)
+            bundles.add(bundle)
+        return [x.doubleValue() for x in bidder.calculateValues(bundles)]
 
     def get_goods_of_interest(self, bidder_id):
         bidder = self.population[bidder_id]
@@ -87,7 +102,7 @@ class SimpleModel(JavaClass):
 
     def get_uniform_random_bids(self, bidder_id, number_of_bids, seed=None):
         bidder = self.population[bidder_id]
-        goods = autoclass('java.util.ArrayList')()
+        goods = LinkedList()
         for good in self.goods.values(): goods.add(good)
         if seed:
             random = Random(seed)
@@ -154,3 +169,11 @@ class SimpleModel(JavaClass):
             self.efficient_allocation[bidder_id]['value'] = bidder_allocation.getValue().doubleValue()
 
         return self.efficient_allocation, allocation.getTotalAllocationValue().doubleValue()
+
+    def _vector_to_bundle(self, vector):
+        assert len(vector) == len(self.goods.keys())
+        bundleEntries = HashSet()
+        for i in range(len(vector)):
+            if vector[i] == 1:
+                bundleEntries.add(BundleEntry(self.goods[i], 1))
+        return Bundle(bundleEntries)

@@ -20,6 +20,14 @@ class GsvmTest(unittest.TestCase):
             value = gsvm.calculate_value(
                 bidder_id, [1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1])
             print(f'value={value}')
+            print('Multiple bundles at once:')
+            values = gsvm.calculate_values(
+                bidder_id,
+                [
+                    [1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1],
+                    [0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1],
+                ])
+            print(f'values={values}')
             print('Generate 3 uniform random bids')
             bids = gsvm.get_uniform_random_bids(bidder_id, 3)
             for bid in bids:

@@ -12,13 +12,14 @@ class _Gsvm(SimpleModel, metaclass=MetaJavaClass):
         '(Lorg/spectrumauctions/sats/core/model/World;Lorg/spectrumauctions/sats/core/util/random/RNGSupplier;)Ljava/util/List;')
     setLegacyGSVM = JavaMethod('(Z)V')
 
-    def __init__(self, seed, number_of_national_bidders, number_of_regional_bidders, isLegacyGSVM=False):
+    def __init__(self, seed, number_of_national_bidders, number_of_regional_bidders, isLegacyGSVM=False, store_files=False):
         self.number_of_national_bidders = number_of_national_bidders
         self.number_of_regional_bidders = number_of_regional_bidders
         self.isLegacy = isLegacyGSVM
         super().__init__(
             seed=seed,
-            mip_path='org.spectrumauctions.sats.opt.model.gsvm.GSVMStandardMIP'
+            mip_path='org.spectrumauctions.sats.opt.model.gsvm.GSVMStandardMIP',
+            store_files=store_files
         )
 
     def prepare_world(self):
