@@ -1,7 +1,6 @@
 import unittest
 from pysats import PySats
 
-
 class GsvmTest(unittest.TestCase):
 
     def setUp(self):
@@ -80,6 +79,23 @@ class GsvmTest(unittest.TestCase):
         for bidder_id in gsvm.get_bidder_ids():
             goods_of_interest = gsvm.get_goods_of_interest(bidder_id)
             print(f'Bidder_{bidder_id}: {goods_of_interest}')
+            
+    def test_demand_query(self):
+        instance_seed = 333
+        gsvm = self.pysats.create_gsvm(seed=instance_seed, isLegacyGSVM=False)
+        price_vector = [0.0] * len(gsvm.get_good_ids())
+        for bidder_id in gsvm.get_bidder_ids():
+            demanded_bundles = gsvm.get_best_bundles(bidder_id, price_vector, 3)
+            first = demanded_bundles[0]
+            for bundle in demanded_bundles[1:]:
+                self.assertNotEqual(first, bundle)
+                self.assertLessEqual(gsvm.calculate_value(bidder_id, bundle), gsvm.calculate_value(bidder_id, first))
+        price_vector =[1e7] * len(gsvm.get_good_ids())
+        for bidder_id in gsvm.get_bidder_ids():
+            demanded_bundles = gsvm.get_best_bundles(bidder_id, price_vector, 3)
+            self.assertEqual(len(demanded_bundles), 1)
+            for value in demanded_bundles[0]:
+                self.assertEqual(value, 0)
 
 
 if __name__ == '__main__':

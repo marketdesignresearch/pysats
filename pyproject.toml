@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pysats"
-version = "0.1.0"
+version = "0.1.1"
 description = "GNU Affero General Public License v3"
 authors = ["Fabio Isler <islerfab@gmail.com>"]
 readme = "README.md"
@@ -9,8 +9,8 @@ homepage = "https://github.com/marketdesignresearch/pysats"
 repository = "https://github.com/marketdesignresearch/pysats"
 
 [tool.poetry.dependencies]
-python = "^3.7"
-numpy = "^1.20.3"
+python = "^3.8"
+numpy = "^1.24.1"
 Cython = "^0.29.23"
 pyjnius = "^1.3.0"
 

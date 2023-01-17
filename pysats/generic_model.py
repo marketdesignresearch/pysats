@@ -1,6 +1,10 @@
 from jnius import autoclass, cast
 from .simple_model import SimpleModel
 
+LinkedHashMap = autoclass('java.util.LinkedHashMap')
+Price = autoclass('org.marketdesignresearch.mechlib.core.price.Price')
+LinearPrices = autoclass('org.marketdesignresearch.mechlib.core.price.LinearPrices')
+
 class GenericModel(SimpleModel):
 
     def __init__(self, seed, mip_path: str, generic_definition_path: str, store_files=False):
@@ -53,3 +57,24 @@ class GenericModel(SimpleModel):
             self.efficient_allocation[bidder_id]['value'] = bidder_allocation.getValue().doubleValue() if allocation.getWinners().contains(bidder) else 0.0
 
         return self.efficient_allocation, allocation.getTotalAllocationValue().doubleValue()
+
+    def get_best_bundles(self, bidder_id, price_vector, max_number_of_bundles):
+        """
+        Careful: So far, it seems it was possible to sneak through PySats without caring about the fact that
+        these models are generic. Generic means that there are subsets of goods that are complete comlements.
+        From a set of goods (A{3}, B{2}) a bidder doesn't care if she gets the first, second or third A.
+        For generic models, asking values is easy - if asked for A.1 or A.2, it will just return the same value.
+        That's why it was OKish so far. For the efficient allocation above, the generic allocation was broken down
+        into concrete licenses again, since it did not really matter - the value of this allocation was still consistent.
+        
+        When asking demand queries, this model breaks. A bidder of a generic world expects a price vector of length 2 in
+        the example above, with a price for good A and a price for good B. If we're in a concrete-licenses world, we
+        would have to ask with a price vector [price(A), price(A), price(A), price(B), price(B)]. I'm currently not sure
+        where this inconsistent use of generic and concrete models would cause problems, but my fear is that it's in 
+        the core idea itself, while it would technically run through. So think twice if you want to use PySats for generic
+        demand queries - and if you need it, we'll need to carefully think about this and implement it.
+        
+        We're not even talking about the fact that breaking down a generic model into concrete goods is highly inefficient
+        and it's going a step away from the original idea of generic models - losing much of its power...
+        """
+        raise NotImplementedError("Generic models are not yet supported for demand queries.")

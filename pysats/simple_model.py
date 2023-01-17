@@ -17,6 +17,9 @@ InMemoryInstanceHandler = autoclass(
     'org.spectrumauctions.sats.core.util.instancehandling.InMemoryInstanceHandler')
 JSONInstanceHandler = autoclass(
     'org.spectrumauctions.sats.core.util.instancehandling.JSONInstanceHandler')
+LinkedHashMap = autoclass('java.util.LinkedHashMap')
+Price = autoclass('org.marketdesignresearch.mechlib.core.price.Price')
+LinearPrices = autoclass('org.marketdesignresearch.mechlib.core.price.LinearPrices')
 
 class SimpleModel(JavaClass):
 
@@ -88,6 +91,27 @@ class SimpleModel(JavaClass):
             bundle = self._vector_to_bundle(goods_vector)
             bundles.add(bundle)
         return [x.doubleValue() for x in bidder.calculateValues(bundles)]
+    
+    def get_best_bundles(self, bidder_id, price_vector, max_number_of_bundles):
+        assert len(price_vector) == len(self.goods.keys())
+        bidder = self.population[bidder_id]
+        prices_map = LinkedHashMap()
+        index = 0
+        for good in self.goods.values():
+            prices_map.put(good, Price.of(price_vector[index]))
+            index += 1
+        bundles = bidder.getBestBundles(LinearPrices(prices_map), max_number_of_bundles)
+        result = []
+        for bundle in bundles:
+            assert bundle.areSingleQuantityGoods()
+            bundle_vector = []
+            for i in range(len(price_vector)):
+                if bundle.contains(self.goods[i]):
+                    bundle_vector.append(1)
+                else:
+                    bundle_vector.append(0)
+            result.append(bundle_vector)
+        return result
 
     def get_goods_of_interest(self, bidder_id):
         bidder = self.population[bidder_id]

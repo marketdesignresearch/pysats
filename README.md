@@ -4,7 +4,7 @@ This is a bridge to use some features of [SATS](https://spectrumauctions.org/) i
 
 ## Requirements
 
-- Python: 3.7+ (required for guaranteeing insertion order in dicts)
+- Python: 3.8+ (required for guaranteeing insertion order in dicts)
 - Pyjnius 1.3.0
 
 ## Set up
