@@ -1,29 +1,39 @@
-from jnius import JavaClass, MetaJavaClass, JavaMethod, JavaMultipleMethod, cast, autoclass
+from jnius import (
+    JavaClass,
+    MetaJavaClass,
+    JavaMethod,
+    JavaMultipleMethod,
+    cast,
+    autoclass,
+)
 
 SizeBasedUniqueRandomXOR = autoclass(
-    'org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR')
+    "org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR"
+)
 JavaUtilRNGSupplier = autoclass(
-    'org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier')
-Random = autoclass('java.util.Random')
-HashSet = autoclass('java.util.HashSet')
-LinkedList = autoclass('java.util.LinkedList')
-Bundle = autoclass(
-    'org.marketdesignresearch.mechlib.core.Bundle')
-BundleEntry = autoclass(
-    'org.marketdesignresearch.mechlib.core.BundleEntry')
+    "org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier"
+)
+Random = autoclass("java.util.Random")
+HashSet = autoclass("java.util.HashSet")
+LinkedList = autoclass("java.util.LinkedList")
+Bundle = autoclass("org.marketdesignresearch.mechlib.core.Bundle")
+BundleEntry = autoclass("org.marketdesignresearch.mechlib.core.BundleEntry")
 InstanceHandler = autoclass(
-    'org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler')
+    "org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler"
+)
 InMemoryInstanceHandler = autoclass(
-    'org.spectrumauctions.sats.core.util.instancehandling.InMemoryInstanceHandler')
+    "org.spectrumauctions.sats.core.util.instancehandling.InMemoryInstanceHandler"
+)
 JSONInstanceHandler = autoclass(
-    'org.spectrumauctions.sats.core.util.instancehandling.JSONInstanceHandler')
-LinkedHashMap = autoclass('java.util.LinkedHashMap')
-Price = autoclass('org.marketdesignresearch.mechlib.core.price.Price')
-LinearPrices = autoclass('org.marketdesignresearch.mechlib.core.price.LinearPrices')
+    "org.spectrumauctions.sats.core.util.instancehandling.JSONInstanceHandler"
+)
+LinkedHashMap = autoclass("java.util.LinkedHashMap")
+Price = autoclass("org.marketdesignresearch.mechlib.core.price.Price")
+LinearPrices = autoclass("org.marketdesignresearch.mechlib.core.price.LinearPrices")
+
 
 class SimpleModel(JavaClass):
-
-    def __init__(self, seed, mip_path: str, store_files = False):
+    def __init__(self, seed, mip_path: str, store_files=False):
         super().__init__()
         if seed:
             rng = JavaUtilRNGSupplier(seed)
@@ -38,7 +48,11 @@ class SimpleModel(JavaClass):
         # Note that since InstanceHandler is a singleton, if you're running experiments in parallel, it may lead
         # to troubles to have this flag set to True in one experiment and False in another one. This is best used
         # in a consistent way, which is probably the idea anyway in most cases.
-        InstanceHandler.setDefaultHandler(JSONInstanceHandler.getInstance() if store_files else InMemoryInstanceHandler.getInstance())
+        InstanceHandler.setDefaultHandler(
+            JSONInstanceHandler.getInstance()
+            if store_files
+            else InMemoryInstanceHandler.getInstance()
+        )
         self.prepare_world()
         world = self.createWorld(rng)
         self._bidder_list = self.createPopulation(world, rng)
@@ -59,10 +73,10 @@ class SimpleModel(JavaClass):
             assert good.getLongId() == count
             count += 1
             self.goods[good.getLongId()] = good
-        
+
         # Python maintains insertion order since 3.7, so it's fine to fill these dictionaries this way
         # -> https://stackoverflow.com/a/40007169
-    
+
     def prepare_world(self):
         """
         Here, child classes will set the parameters for the world creation, e.g. the
@@ -91,7 +105,7 @@ class SimpleModel(JavaClass):
             bundle = self._vector_to_bundle(goods_vector)
             bundles.add(bundle)
         return [x.doubleValue() for x in bidder.calculateValues(bundles)]
-    
+
     def get_best_bundles(self, bidder_id, price_vector, max_number_of_bundles):
         assert len(price_vector) == len(self.goods.keys())
         bidder = self.population[bidder_id]
@@ -127,7 +141,8 @@ class SimpleModel(JavaClass):
     def get_uniform_random_bids(self, bidder_id, number_of_bids, seed=None):
         bidder = self.population[bidder_id]
         goods = LinkedList()
-        for good in self.goods.values(): goods.add(good)
+        for good in self.goods.values():
+            goods.add(good)
         if seed:
             random = Random(seed)
         else:
@@ -138,7 +153,7 @@ class SimpleModel(JavaClass):
             bid = []
             bundle = bidder.getAllocationLimit().getUniformRandomBundle(random, goods)
             for good_id, good in self.goods.items():
-                if (bundle.contains(good)):
+                if bundle.contains(good):
                     bid.append(1)
                 else:
                     bid.append(0)
@@ -146,24 +161,32 @@ class SimpleModel(JavaClass):
             bids.append(bid)
         return bids
 
-    def get_random_bids(self, bidder_id, number_of_bids, seed=None, mean_bundle_size=9, standard_deviation_bundle_size=4.5):
+    def get_random_bids(
+        self,
+        bidder_id,
+        number_of_bids,
+        seed=None,
+        mean_bundle_size=9,
+        standard_deviation_bundle_size=4.5,
+    ):
         bidder = self.population[bidder_id]
         if seed:
             rng = JavaUtilRNGSupplier(seed)
         else:
             rng = JavaUtilRNGSupplier()
-        valueFunction = cast('org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR',
-                                bidder.getValueFunction(SizeBasedUniqueRandomXOR, rng))
-        valueFunction.setDistribution(
-            mean_bundle_size, standard_deviation_bundle_size)
+        valueFunction = cast(
+            "org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR",
+            bidder.getValueFunction(SizeBasedUniqueRandomXOR, rng),
+        )
+        valueFunction.setDistribution(mean_bundle_size, standard_deviation_bundle_size)
         valueFunction.setIterations(number_of_bids)
         xorBidIterator = valueFunction.iterator()
         bids = []
-        while (xorBidIterator.hasNext()):
+        while xorBidIterator.hasNext():
             bundleValue = xorBidIterator.next()
             bid = []
             for good_id, good in self.goods.items():
-                if (bundleValue.getBundle().contains(good)):
+                if bundleValue.getBundle().contains(good):
                     bid.append(1)
                 else:
                     bid.append(0)
@@ -173,7 +196,12 @@ class SimpleModel(JavaClass):
 
     def get_efficient_allocation(self, display_output=False):
         if self.efficient_allocation:
-            return self.efficient_allocation, sum([self.efficient_allocation[bidder_id]['value'] for bidder_id in self.efficient_allocation.keys()])
+            return self.efficient_allocation, sum(
+                [
+                    self.efficient_allocation[bidder_id]["value"]
+                    for bidder_id in self.efficient_allocation.keys()
+                ]
+            )
 
         mip = autoclass(self.mip_path)(self._bidder_list)
         mip.setDisplayOutput(display_output)
@@ -184,15 +212,24 @@ class SimpleModel(JavaClass):
 
         for bidder_id, bidder in self.population.items():
             self.efficient_allocation[bidder_id] = {}
-            self.efficient_allocation[bidder_id]['good_ids'] = []
+            self.efficient_allocation[bidder_id]["good_ids"] = []
             bidder_allocation = allocation.allocationOf(bidder)
-            good_iterator = bidder_allocation.getBundle().getSingleQuantityGoods().iterator()
+            good_iterator = (
+                bidder_allocation.getBundle().getSingleQuantityGoods().iterator()
+            )
             while good_iterator.hasNext():
-                self.efficient_allocation[bidder_id]['good_ids'].append(good_iterator.next().getLongId())
+                self.efficient_allocation[bidder_id]["good_ids"].append(
+                    good_iterator.next().getLongId()
+                )
 
-            self.efficient_allocation[bidder_id]['value'] = bidder_allocation.getValue().doubleValue()
+            self.efficient_allocation[bidder_id][
+                "value"
+            ] = bidder_allocation.getValue().doubleValue()
 
-        return self.efficient_allocation, allocation.getTotalAllocationValue().doubleValue()
+        return (
+            self.efficient_allocation,
+            allocation.getTotalAllocationValue().doubleValue(),
+        )
 
     def _vector_to_bundle(self, vector):
         assert len(vector) == len(self.goods.keys())
