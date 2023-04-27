@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pysats"
-version = "0.2.1"
+version = "0.2.2"
 description = "GNU Affero General Public License v3"
 authors = ["Fabio Isler <islerfab@gmail.com>"]
 readme = "README.md"
