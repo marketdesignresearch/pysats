@@ -106,7 +106,9 @@ class SimpleModel(JavaClass):
             bundles.add(bundle)
         return [x.doubleValue() for x in bidder.calculateValues(bundles)]
 
-    def get_best_bundles(self, bidder_id, price_vector, max_number_of_bundles):
+    def get_best_bundles(
+        self, bidder_id, price_vector, max_number_of_bundles, allow_negative=False
+    ):
         assert len(price_vector) == len(self.goods.keys())
         bidder = self.population[bidder_id]
         prices_map = LinkedHashMap()
@@ -114,7 +116,9 @@ class SimpleModel(JavaClass):
         for good in self.goods.values():
             prices_map.put(good, Price.of(price_vector[index]))
             index += 1
-        bundles = bidder.getBestBundles(LinearPrices(prices_map), max_number_of_bundles)
+        bundles = bidder.getBestBundles(
+            LinearPrices(prices_map), max_number_of_bundles, allow_negative
+        )
         result = []
         for bundle in bundles:
             assert bundle.areSingleQuantityGoods()
