@@ -72,16 +72,23 @@ class PySats:
         number_of_regional_bidders=4,
         number_of_local_bidders=3,
         store_files=False,
+        generic=False
     ):
         from .mrvm import _Mrvm
 
-        return _Mrvm(
+        mrvm = _Mrvm(
             seed,
             number_of_national_bidders,
             number_of_regional_bidders,
             number_of_local_bidders,
             store_files,
         )
+
+        if generic:
+            from .generic_wrapper import GenericWrapper
+            return GenericWrapper(mrvm)
+
+        return mrvm
 
     def create_srvm(
         self,
@@ -91,10 +98,11 @@ class PySats:
         number_of_secondary_bidders=2,
         number_of_primary_bidders=2,
         store_files=False,
+        generic=False
     ):
         from .srvm import _Srvm
 
-        return _Srvm(
+        srvm = _Srvm(
             seed,
             number_of_small_bidders,
             number_of_high_frequency_bidders,
@@ -102,3 +110,9 @@ class PySats:
             number_of_primary_bidders,
             store_files,
         )
+
+        if generic:
+            from .generic_wrapper import GenericWrapper
+            return GenericWrapper(srvm)
+
+        return srvm
