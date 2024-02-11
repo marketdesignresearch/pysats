@@ -89,6 +89,59 @@ class SrvmTest(unittest.TestCase):
             goods_of_interest = srvm.get_goods_of_interest(bidder_id)
             print(f"Bidder_{bidder_id}: {goods_of_interest}")
 
+    def test_generic(self):
+
+        print('---Starting SRVM test ---')
+
+        srvm = PySats.getInstance().create_srvm(1)
+        srvm_generic = PySats.getInstance().create_srvm(1, generic=True)
+
+        self.assertEqual(len(srvm.get_good_ids()), 29)
+        # Number of goods in GenericWrapper: 3
+        self.assertEqual(len(srvm_generic.get_good_ids()), 3)
+
+        # keys: goods, values: however many goods map to it
+        capacities = {i: len(srvm_generic.good_to_licence[i]) for i in range(len(srvm_generic.good_to_licence))}
+        capacities2 = srvm_generic.get_capacities()
+
+        print('Generic capacities:', capacities)
+
+        # compare the efficient allocation
+        srvm_eff = srvm.get_efficient_allocation()
+        srvm_generic_eff = srvm_generic.get_efficient_allocation()
+
+        # efficient values are the same
+        self.assertEqual(srvm_eff[1],srvm_generic_eff[1])
+
+        # bidder allocation of original pysats (good refers to a licence)
+        print(srvm_eff[0][1])
+        # bidder allocation of generic wrapper (good refers to generic good), allocation contains additional good_count
+        # (i.e. number of goods allocated in the same order as good_ids)
+        print(srvm_generic_eff[0][1])
+
+        # perform a demand query
+        price = np.zeros(len(srvm_generic.get_good_ids()))
+        demand = srvm_generic.get_best_bundles(1, price, 2, allow_negative=True)
+        print(demand[0])
+        print(len(demand[0]))
+
+        # random queries work as expected
+        bid = srvm_generic.get_uniform_random_bids(1, 1)[0]
+
+        value = srvm_generic.calculate_value(1, demand[0])
+
+        # ensuring that the value in 2 represetations is the same
+        bundle_extended_representation = [0 for i in range(len(srvm.get_good_ids()))]
+        for i in range(len(demand[0])):
+            license_mapping = srvm_generic.good_to_licence[i]
+            items_requested = demand[0][i]
+            for j in range(items_requested):
+                bundle_extended_representation[license_mapping[j]] = 1
+
+        value_extended_representation = srvm.calculate_value(1, bundle_extended_representation)
+        self.assertEqual(value, value_extended_representation)
+        print('Difference between the values in the 2 representations:', value - value_extended_representation)
+
 
 if __name__ == "__main__":
     unittest.main()
